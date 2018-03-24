@@ -11,12 +11,13 @@ def draw_graph(node_list, weights, name, saveas):
     nx.draw_networkx_nodes(G,pos,node_color='green',node_size=750)
     for i in range(len(node_list)):
         for j in range(i+1, len((node_list))):
-            G.add_edge(node_list[i], node_list[j], weight = weights[i][j])
+            G.add_edge(node_list[i], node_list[j], weight = weights[i][j])      # Define the weights
             
     # Draw Graph with widths corresponding to weights
     for i in range(len(node_list)):
         for j in range(len(node_list)):
             nx.draw_networkx_edges(G, pos, edgelist = [(node_list[i],node_list[j])], width = weights[i][j]/15);
+                # Draws the Graph edge wise with width corresponding to weights
     plt.axis('off')
     plt.title(name);
     plt.savefig(saveas + ".pdf")
