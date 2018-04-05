@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 import random
 
 # This function will plot a graph once it's given the node list, weights of edges as a 2D matrix.
@@ -25,20 +26,35 @@ def draw_graph(node_list, weights, name, saveas):
     plt.show()
 
 
+# Birth death update rule
 def birth_death(node_list, weights, cycle):
-    # Birth death update rule
-    return 1
+    # Select a node to reproduce at random
+    node_to_reproduce = random.choice(node_list)
+    print("Node", node_to_reproduce, "will reproduce")
+    prob_dist = list(transformed_payoff)
+    for node in node_list:
+        prob_dist[node] = weights[node_to_reproduce][node] / transformed_payoff[node]
+    normalization_factor = np.sum(prob_dist)
+    # create a probability distribution proportional to e_ij / F_j
+    for node in node_list:
+        normalized_prob_dist = [i/normalization_factor for i in prob_dist]
+    print("The probability distribution to choose neighbour to be killed is", prob_dist)
+    print("The normalized probability distribution to choose neighbour to be killed is", normalized_prob_dist)
+    # choose a node to die based on the probability distribution
+    node_to_die = np.random.choice(node_list, 1, False, normalized_prob_dist)
+    print("Node", node_to_die, "will die")
 
 # Function For Runing The Game
 def evolve(node_list, weights, cycle):
     for i in range(cycle):
         birth_death(node_list, weights, cycle)
-        print("Step", i + 1, "completed")
+        print("Step", i + 1, "completed\n")
     # Rule for Evolution Here
+
 
 node_list = [0, 1, 2]
 
-#node_type tells whether the node is C (0) or D (1)
+# node_type tells whether the node is C (0) or D (1)
 node_type = [0, 0, 1]
 
 # Payoff matrix for two players
@@ -46,19 +62,28 @@ payoff_matrix = [[1, 0], [0, 1]]
 
 weights = [[0, 1, 2], [1, 0, 3], [2,3,0]]
 
-#instantiating the payoff matrix
+#instantiating the payoff matrix f_j
 payoff = [0, 0, 0]
+# F_j
+transformed_payoff = list(payoff)
 
-# Computes payoffs fo each node
-def compute_payoffs(node_list, weights):
+# transformation function to scale payoffs
+def transform(i):
+    return i + 1
+
+# Computes payoffs of each node
+def update_payoffs(node_list, weights):
     for node in node_list:
         payoff[node] = 0
         for i in node_list:
             payoff[node] += weights[node][i] * payoff_matrix[node_type[node]][node_type[i]]
 
-compute_payoffs(node_list, weights)
-print(payoff)
+    for i in range(len(payoff)):
+        transformed_payoff[i] =  transform(payoff[i])
 
+update_payoffs(node_list, weights)
+print("The total payoffs are", payoff)
+print("The transformed payoffs are", transformed_payoff, "\n")
 cycle = 3
 evolve(node_list, weights, cycle)
 #draw_graph(node_list, weights, "Title", "Saveas")
