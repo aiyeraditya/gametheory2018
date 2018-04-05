@@ -9,8 +9,9 @@ def draw_graph(node_list, weights, name, saveas):
     G = nx.Graph()
     for node in node_list:
         G.add_node(node)
-    pos=nx.circular_layout(G)
-    nx.draw_networkx_nodes(G,pos,node_color='green',node_size=750)
+    pos=nx.spectral_layout(G)
+
+    nx.draw_networkx_nodes(G,pos,node_color=node_type, node_size=750)
     for i in range(len(node_list)):
         for j in range(i+1, len((node_list))):
             G.add_edge(node_list[i], node_list[j], weight = weights[i][j])      # Define the weights
@@ -20,6 +21,9 @@ def draw_graph(node_list, weights, name, saveas):
         for j in range(len(node_list)):
             nx.draw_networkx_edges(G, pos, edgelist = [(node_list[i],node_list[j])], width = weights[i][j]/15);
                 # Draws the Graph edge wise with width corresponding to weights
+
+    arc_weight = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=arc_weight, font_color='black')
     plt.axis('off')
     plt.title(name);
     plt.savefig(saveas + ".pdf")
@@ -41,14 +45,32 @@ def birth_death(node_list, weights, cycle):
     print("The probability distribution to choose neighbour to be killed is", prob_dist)
     print("The normalized probability distribution to choose neighbour to be killed is", normalized_prob_dist)
     # choose a node to die based on the probability distribution
-    node_to_die = np.random.choice(node_list, 1, False, normalized_prob_dist)
+    node_to_die_array = np.random.choice(node_list, 1, False, normalized_prob_dist)
+    node_to_die = node_to_die_array[0]
     print("Node", node_to_die, "will die")
+
+    node_type[node_to_die] = node_type[node_to_reproduce]
+
+    for i in range(len(weights)):
+        weights[node_to_die][i] = weights[node_to_reproduce][i]
+
+    for i in range(len(weights)):
+        weights[i][node_to_die] = weights[i][node_to_reproduce]
+
+    update_payoffs(node_list, weights)
 
 # Function For Runing The Game
 def evolve(node_list, weights, cycle):
     for i in range(cycle):
+
+        print("The node types are", node_type)
+        print("The total payoffs are", payoff)
+        print("The transformed payoffs are", transformed_payoff, "\n")
+
+        draw_graph(node_list, weights, "Stage %d" % i, "stage %d" % i)
         birth_death(node_list, weights, cycle)
         print("Step", i + 1, "completed\n")
+
     # Rule for Evolution Here
 
 
@@ -67,7 +89,7 @@ payoff = [0, 0, 0]
 # F_j
 transformed_payoff = list(payoff)
 
-# transformation function to scale payoffs
+# transformation function to scale payoffs - could be exponential
 def transform(i):
     return i + 1
 
@@ -82,8 +104,6 @@ def update_payoffs(node_list, weights):
         transformed_payoff[i] =  transform(payoff[i])
 
 update_payoffs(node_list, weights)
-print("The total payoffs are", payoff)
-print("The transformed payoffs are", transformed_payoff, "\n")
 cycle = 3
 evolve(node_list, weights, cycle)
 #draw_graph(node_list, weights, "Title", "Saveas")
