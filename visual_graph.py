@@ -9,9 +9,10 @@ def draw_graph(node_list, weights, name, saveas):
     G = nx.Graph()
     for node in node_list:
         G.add_node(node)
-    pos=nx.spectral_layout(G)
+    pos=nx.circular_layout(G)
 
-    nx.draw_networkx_nodes(G,pos,node_color=node_type, node_size=750)
+    node_colors = ['red' if node == 1 else 'green' for node in node_type]
+    nx.draw_networkx_nodes(G,pos,node_color=node_colors, node_size=750)
     for i in range(len(node_list)):
         for j in range(i+1, len((node_list))):
             G.add_edge(node_list[i], node_list[j], weight = weights[i][j])      # Define the weights
@@ -23,11 +24,11 @@ def draw_graph(node_list, weights, name, saveas):
                 # Draws the Graph edge wise with width corresponding to weights
 
     arc_weight = nx.get_edge_attributes(G, 'weight')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=arc_weight, font_color='black')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=arc_weight, font_color='black', label_pos=0.3)
     plt.axis('off')
     plt.title(name);
-    plt.savefig(saveas + ".pdf")
-    plt.show()
+    plt.savefig(saveas + ".png")
+    #plt.show()
 
 
 # Birth death update rule
@@ -57,6 +58,8 @@ def birth_death(node_list, weights, cycle):
     for i in range(len(weights)):
         weights[i][node_to_die] = weights[i][node_to_reproduce]
 
+    weights[node_to_die][node_to_reproduce] = 1
+    weights[node_to_reproduce][node_to_die] = 1
     update_payoffs(node_list, weights)
 
 # Function For Runing The Game
@@ -74,18 +77,18 @@ def evolve(node_list, weights, cycle):
     # Rule for Evolution Here
 
 
-node_list = [0, 1, 2]
+node_list = [0, 1, 2, 3, 4]
 
 # node_type tells whether the node is C (0) or D (1)
-node_type = [0, 0, 1]
+node_type = [0, 0, 1, 1, 0]
 
 # Payoff matrix for two players
-payoff_matrix = [[1, 0], [0, 1]]
+payoff_matrix = [[3, 1], [4, 2]]
 
-weights = [[0, 1, 2], [1, 0, 3], [2,3,0]]
+weights = [[0, 1, 2, 3, 4], [1, 0, 3, 0, 4], [2,3,0, 1, 1], [1, 4, 0, 0, 0], [4, 3, 2, 1, 0]]
 
 #instantiating the payoff matrix f_j
-payoff = [0, 0, 0]
+payoff = [0, 0, 0, 0, 0]
 # F_j
 transformed_payoff = list(payoff)
 
@@ -104,6 +107,6 @@ def update_payoffs(node_list, weights):
         transformed_payoff[i] =  transform(payoff[i])
 
 update_payoffs(node_list, weights)
-cycle = 3
+cycle = 50
 evolve(node_list, weights, cycle)
 #draw_graph(node_list, weights, "Title", "Saveas")
