@@ -30,7 +30,6 @@ def draw_graph(node_list, weights, name, saveas):
     plt.savefig(saveas + ".png")
     #plt.show()
 
-
 # Birth death update rule
 def birth_death(node_list, weights, cycle):
     # Select a node to reproduce at random
@@ -62,6 +61,46 @@ def birth_death(node_list, weights, cycle):
     weights[node_to_reproduce][node_to_die] = 1
     update_payoffs(node_list, weights)
 
+def death_birth(node_list, weights, cycle):
+
+    death_prob_dist = list(transformed_payoff)
+    for node in node_list:
+        death_prob_dist[node] = 1 / transformed_payoff[node]
+    death_normalization_factor = np.sum(death_prob_dist)
+
+    for node in node_list:
+        normalized_death_dist = [i/death_normalization_factor for i in death_prob_dist]
+    node_to_die_array = np.random.choice(node_list, 1, False, normalized_death_dist)
+    node_to_die = node_to_die_array[0]
+
+    print("Node", node_to_die, "will die")
+
+    reproduce_prob_dist = list(transformed_payoff)
+    for node in node_list:
+        reproduce_prob_dist[node] = weights[node_to_die][node]
+    reproduce_normalization_factor = np.sum(reproduce_prob_dist)
+    # create a probability distribution proportional to e_ij
+    for node in node_list:
+        normalized_reproduce_dist = [i/reproduce_normalization_factor for i in reproduce_prob_dist]
+    print("The probability distribution to choose neighbour to be reproduce is", reproduce_prob_dist)
+    print("The normalized probability distribution to choose neighbour to reproduce is", normalized_reproduce_dist)
+    # choose a node to die based on the probability distribution
+    node_to_reproduce_array = np.random.choice(node_list, 1, False, normalized_reproduce_dist)
+    node_to_reproduce = node_to_reproduce_array[0]
+    print("Node", node_to_die, "will reproduce")
+
+    node_type[node_to_die] = node_type[node_to_reproduce]
+
+    for i in range(len(weights)):
+        weights[node_to_die][i] = weights[node_to_reproduce][i]
+
+    for i in range(len(weights)):
+        weights[i][node_to_die] = weights[i][node_to_reproduce]
+
+    weights[node_to_die][node_to_reproduce] = 1
+    weights[node_to_reproduce][node_to_die] = 1
+    update_payoffs(node_list, weights)
+
 # Function For Runing The Game
 def evolve(node_list, weights, cycle):
     for i in range(cycle):
@@ -71,11 +110,10 @@ def evolve(node_list, weights, cycle):
         print("The transformed payoffs are", transformed_payoff, "\n")
 
         draw_graph(node_list, weights, "Stage %d" % i, "stage %d" % i)
-        birth_death(node_list, weights, cycle)
+        death_birth(node_list, weights, cycle)
         print("Step", i + 1, "completed\n")
 
     # Rule for Evolution Here
-
 
 node_list = [0, 1, 2, 3, 4]
 
