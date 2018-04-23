@@ -20,7 +20,7 @@ def draw_graph(node_list, weights, name, saveas):
     # Draw Graph with widths corresponding to weights
     for i in range(len(node_list)):
         for j in range(len(node_list)):
-            nx.draw_networkx_edges(G, pos, edgelist = [(node_list[i],node_list[j])], width = weights[i][j]);
+            nx.draw_networkx_edges(G, pos, edgelist = [(node_list[i],node_list[j])], width = weights[i][j])
                 # Draws the Graph edge wise with width corresponding to weights
 
     arc_weight = nx.get_edge_attributes(G, 'weight')
@@ -117,22 +117,27 @@ def evolve(node_list, weights, cycle):
 
 
     # Rule for Evolution Here
-node_list = [0, 1, 2, 3, 4]
+node_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # node_type tells whether the node is C (0) or D (1)
-node_type = [0, 0, 0, 0, 1]
+node_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 # Payoff matrix for two players
 payoff_matrix = [[3, 1], [4, 2]]
 
-weights = [ [0, 1, 2, 1, 4],
-            [1, 0, 3, 4, 3],
-            [2, 3, 0, 0, 2],
-            [1, 4, 0, 0, 1],
-            [4, 3, 2, 1, 0]]
+weights = [ [0, 1, 2, 1, 4, 2, 5, 6, 4, 3],
+            [1, 0, 3, 4, 3, 0, 1, 3, 1, 5],
+            [2, 3, 0, 0, 2, 5, 4, 2, 3, 0],
+            [1, 4, 0, 0, 1, 0, 0, 0, 0, 0],
+            [4, 3, 2, 1, 0, 3, 4, 2, 1, 0],
+            [2, 0, 5, 0, 3, 1, 2, 1, 2, 1],
+            [5, 1, 4, 0, 4, 2, 4, 3, 1, 2],
+            [6, 3, 2, 0, 2, 1, 3, 0, 0, 0],
+            [4, 1, 3, 0, 1, 2, 1, 0, 3, 2],
+            [3, 5, 0, 0, 0, 1, 2, 0, 2, 5] ]
 #weights = [[1 for i in range(5)] for i in range(5)]
 #instantiating the payoff matrix f_j
-payoff = [0, 0, 0, 0, 0]
+payoff = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 # F_j
 transformed_payoff = list(payoff)
 
